@@ -63,7 +63,7 @@ export default async function HomePage() {
           Oops! Something went wrong.
         </h1>
         <p className="mt-4 text-lg text-gray-400">
-          We couldn\'t find the microsite you\'re looking for.
+          We could not find the microsite you are looking for.
         </p>
         <p className="mt-2 text-sm text-gray-500">
           Error Details: {error || "Invalid agent subdomain."}
