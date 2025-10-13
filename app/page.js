@@ -1,103 +1,77 @@
-import Image from "next/image";
+// This is the main Server Component for the page. Its only job is to
+// fetch data and then pass it to the client components for rendering.
 
-export default function Home() {
-  return (
-    <div className="font-sans grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20">
-      <main className="flex flex-col gap-[32px] row-start-2 items-center sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={180}
-          height={38}
-          priority
-        />
-        <ol className="font-mono list-inside list-decimal text-sm/6 text-center sm:text-left">
-          <li className="mb-2 tracking-[-.01em]">
-            Get started by editing{" "}
-            <code className="bg-black/[.05] dark:bg-white/[.06] font-mono font-semibold px-1 py-0.5 rounded">
-              app/page.js
-            </code>
-            .
-          </li>
-          <li className="tracking-[-.01em]">
-            Save and see your changes instantly.
-          </li>
-        </ol>
+import { headers } from "next/headers";
+import ClientApp from "../components/ClientApp"; // Import the main client component
 
-        <div className="flex gap-4 items-center flex-col sm:flex-row">
-          <a
-            className="rounded-full border border-solid border-transparent transition-colors flex items-center justify-center bg-foreground text-background gap-2 hover:bg-[#383838] dark:hover:bg-[#ccc] font-medium text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 sm:w-auto"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={20}
-              height={20}
-            />
-            Deploy now
-          </a>
-          <a
-            className="rounded-full border border-solid border-black/[.08] dark:border-white/[.145] transition-colors flex items-center justify-center hover:bg-[#f2f2f2] dark:hover:bg-[#1a1a1a] hover:border-transparent font-medium text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 w-full sm:w-auto md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Read our docs
-          </a>
-        </div>
-      </main>
-      <footer className="row-start-3 flex gap-[24px] flex-wrap items-center justify-center">
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/file.svg"
-            alt="File icon"
-            width={16}
-            height={16}
-          />
-          Learn
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/window.svg"
-            alt="Window icon"
-            width={16}
-            height={16}
-          />
-          Examples
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/globe.svg"
-            alt="Globe icon"
-            width={16}
-            height={16}
-          />
-          Go to nextjs.org →
-        </a>
-      </footer>
-    </div>
-  );
+// This is a special Next.js function to get the base URL of our deployment.
+// It helps us make API calls from the server to itself.
+function getBaseUrl() {
+  if (process.env.VERCEL_URL) {
+    // This is the Vercel system environment variable for the deployment URL.
+    return `https://${process.env.VERCEL_URL}`;
+  }
+  // Fallback for local development
+  return "http://localhost:3000";
+}
+
+// This is the main Server Component for the page. It runs on the server only.
+export default async function HomePage() {
+  const headersList = await headers();
+  // On Vercel, the 'x-forwarded-host' header reliably tells us the domain the user is visiting.
+  // The 'host' header is a fallback for local development.
+  const host = await headersList.get("x-forwarded-host") || headersList.get("host");
+
+  let subdomain;
+
+  // FIX: Differentiate between production and local environments.
+  if (host.includes("localhost")) {
+    // In local development, the host is 'localhost:3000'. We can't parse a real subdomain.
+    // So, we'll use a default one for testing.
+    // You can change this to 'londonprops' or 'newhorizons' to test other agents locally.
+    subdomain = "brighthomes";
+  } else {
+    // In production (on Vercel), we parse the subdomain from the host string.
+    subdomain = host.split(".")[0];
+  }
+
+  const baseUrl = getBaseUrl();
+  let data = null;
+  let error = null;
+
+  try {
+    // This fetch happens on the server, calling our own API route.
+    // 'cache: no-store' ensures we always get the latest data from Airtable.
+    const res = await fetch(`${baseUrl}/api/${subdomain}`, {
+      cache: "no-store",
+    });
+    if (!res.ok) {
+      throw new Error(`Failed to fetch data for subdomain: ${subdomain}`);
+    }
+    data = await res.json();
+  } catch (err) {
+    console.error(err); // Log the actual error on the server for debugging.
+    error = err.message;
+  }
+
+  // If we couldn't fetch data (e.g., invalid subdomain), we render a user-friendly error page.
+  if (error || !data || !data.agent) {
+    return (
+      <div className="min-h-screen bg-gray-900 text-white flex flex-col items-center justify-center text-center p-4">
+        <h1 className="text-4xl font-bold text-red-500">
+          Oops! Something went wrong.
+        </h1>
+        <p className="mt-4 text-lg text-gray-400">
+          We couldn't find the microsite you're looking for.
+        </p>
+        <p className="mt-2 text-sm text-gray-500">
+          Error Details: {error || "Invalid agent subdomain."}
+        </p>
+      </div>
+    );
+  }
+
+  // If data is fetched successfully, we pass it to the ClientApp component,
+  // which will be rendered interactively in the user's browser.
+  return <ClientApp data={data} />;
 }
