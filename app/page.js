@@ -20,7 +20,8 @@ export default async function HomePage() {
   const headersList = await headers();
   // On Vercel, the 'x-forwarded-host' header reliably tells us the domain the user is visiting.
   // The 'host' header is a fallback for local development.
-  const host = await headersList.get("x-forwarded-host") || headersList.get("host");
+  const host =
+    (await headersList.get("x-forwarded-host")) || headersList.get("host");
 
   let subdomain;
 
@@ -62,7 +63,7 @@ export default async function HomePage() {
           Oops! Something went wrong.
         </h1>
         <p className="mt-4 text-lg text-gray-400">
-          We couldn't find the microsite you're looking for.
+          We couldn\'t find the microsite you\'re looking for.
         </p>
         <p className="mt-2 text-sm text-gray-500">
           Error Details: {error || "Invalid agent subdomain."}
