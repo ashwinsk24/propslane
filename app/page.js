@@ -10,36 +10,42 @@ export default async function HomePage() {
   let error = null;
 
   try {
-    // --- ROBUST SUBDOMAIN DETECTION ---
     const host = headersList.get("x-forwarded-host") || headersList.get("host");
 
+    // --- MORE ROBUST SUBDOMAIN DETECTION ---
+    // This logic now correctly differentiates between the main domain, Vercel preview URLs, and custom subdomains.
     let subdomain;
-    // The VERCEL_URL variable is available in Vercel deployments.
-    // It helps us identify our main domain vs. a custom subdomain.
-    const appHost = process.env.VERCEL_URL || "propslane.com";
+    const rootHosts = [
+      "propslane.com", // Your final production domain
+      "propslane.vercel.app", // Your Vercel production domain
+      process.env.VERCEL_URL, // The dynamic Vercel deployment URL (e.g., propslane-xyz.vercel.app)
+      "localhost:3000",
+    ];
 
-    if (host.includes(appHost)) {
-      // It's the main domain or a Vercel preview URL.
+    if (rootHosts.includes(host)) {
+      // If the host is one of the main domains, we use the 'propslane' agent.
       subdomain = "propslane";
     } else {
-      // It's a custom subdomain.
+      // Otherwise, we assume it's a custom agent subdomain.
       subdomain = host.split(".")[0];
     }
 
-    // --- SERVER-SIDE API FETCH ---
-    // On the server, we need to use the full, absolute URL to fetch from our own API.
-    // The process.env.VERCEL_URL gives us the base path.
+    // --- MORE RELIABLE SERVER-SIDE API FETCH ---
+    // We construct the base URL directly from the host header, which is more reliable than VERCEL_URL.
     const protocol = process.env.NODE_ENV === "development" ? "http" : "https";
-    const baseUrl = process.env.VERCEL_URL
-      ? `${protocol}://${process.env.VERCEL_URL}`
-      : "http://localhost:3000";
+    const baseUrl = `${protocol}://${host}`;
 
     const res = await fetch(`${baseUrl}/api/${subdomain}`, {
       cache: "no-store", // Disable caching to always get fresh data
     });
 
     if (!res.ok) {
-      throw new Error(`Failed to fetch data for subdomain: ${subdomain}`);
+      const errorBody = await res.json();
+      throw new Error(
+        `Failed to fetch data for subdomain: ${subdomain}. API responded with: ${JSON.stringify(
+          errorBody
+        )}`
+      );
     }
     data = await res.json();
   } catch (err) {
