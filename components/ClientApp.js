@@ -53,38 +53,43 @@ export default function ClientApp({ data }) {
   return (
     <div className="bg-gray-900 text-white min-h-screen">
       <Header agent={agent} />
-      <main className="p-4 sm:p-8 animate-fade-in">
+      <main className="flex-grow">
         {view === "list" && (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-            {properties.map((prop, index) => (
-              <PropertyCard
-                key={index}
-                property={prop}
-                onSelect={handleSelectProperty}
-                onBook={() => handleOpenModal(prop)}
-              />
-            ))}
+          // This container centers the content and adds padding.
+          <div className="container mx-auto p-4 sm:p-8">
+            <h2 className="text-3xl font-bold text-white mb-6">
+              Available Properties
+            </h2>
+            {properties.length > 0 ? (
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                {properties.map((prop, index) => (
+                  <PropertyCard
+                    key={index}
+                    property={prop}
+                    onSelect={handleSelectProperty}
+                    onBook={() => handleOpenModal(prop)}
+                  />
+                ))}
+              </div>
+            ) : (
+              <div className="text-center py-20 bg-gray-800 rounded-2xl">
+                <h2 className="text-2xl font-semibold text-white">
+                  No Properties Found
+                </h2>
+                <p className="text-gray-400 mt-2">
+                  This agent currently has no active listings. Please check back
+                  later.
+                </p>
+              </div>
+            )}
           </div>
         )}
-
         {view === "detail" && selectedProperty && (
           <PropertyDetailView
             property={selectedProperty}
             onBack={handleBackToList}
             onBook={() => handleOpenModal(selectedProperty)}
           />
-        )}
-
-        {properties.length === 0 && view === "list" && (
-          <div className="text-center py-20 col-span-full">
-            <h2 className="text-2xl font-semibold text-white">
-              No Properties Found
-            </h2>
-            <p className="text-gray-400 mt-2">
-              This agent currently has no active listings. Please check back
-              later.
-            </p>
-          </div>
         )}
       </main>
       {isModalOpen && selectedProperty && (
