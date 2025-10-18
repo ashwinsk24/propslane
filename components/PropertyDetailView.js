@@ -14,7 +14,7 @@ export default function PropertyDetailView({ property, onBack, onBook }) {
     <div className="container mx-auto p-4 sm:p-6 lg:p-8 animate-fade-in">
       <button
         onClick={onBack}
-        className="text-cyan-400 hover:text-cyan-300 mb-6 font-semibold"
+        className="text-blue-600 hover:text-blue-800 mb-6 font-semibold"
       >
         &larr; Back to Listings
       </button>
@@ -40,14 +40,14 @@ export default function PropertyDetailView({ property, onBack, onBook }) {
 
         {/* Details Column */}
         <div className="lg:col-span-2">
-          <div className="bg-gray-800 p-6 rounded-2xl sticky top-24">
-            <h1 className="text-3xl font-bold text-white mb-1">
+          <div className="bg-white p-6 rounded-2xl sticky top-24 border border-gray-200 shadow-lg">
+            <h1 className="text-3xl font-bold text-gray-900 mb-1">
               {property.address}
             </h1>
-            <p className="text-3xl font-light text-cyan-400 mb-4">
+            <p className="text-3xl font-light text-blue-600 mb-4">
               {formatCurrency(property.price)}
             </p>
-            <div className="flex flex-wrap gap-x-6 gap-y-2 text-gray-300 border-y border-gray-700 py-4 mb-4">
+            <div className="flex flex-wrap gap-x-6 gap-y-2 text-gray-600 border-y border-gray-200 py-4 mb-4">
               <span>
                 <BedIcon /> {property.bedrooms} beds
               </span>
@@ -58,7 +58,7 @@ export default function PropertyDetailView({ property, onBack, onBook }) {
                 <MaximizeIcon /> {property.sqft} sqft
               </span>
             </div>
-            <p className="text-gray-300 mb-6 leading-relaxed">
+            <p className="text-gray-700 mb-6 leading-relaxed">
               {property.description}
             </p>
             <div className="space-y-3">
@@ -66,13 +66,13 @@ export default function PropertyDetailView({ property, onBack, onBook }) {
                 href={property.matterportUrl || "#"}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="block w-full text-center bg-cyan-600 text-white font-bold py-3 px-4 rounded-lg hover:bg-cyan-700 transition-colors text-lg"
+                className="block w-full text-center bg-blue-600 text-white font-bold py-3 px-4 rounded-lg hover:bg-blue-700 transition-colors text-lg"
               >
                 View 3D Tour
               </a>
               <button
                 onClick={() => onBook(property)}
-                className="w-full bg-gray-700 text-white font-bold py-3 px-4 rounded-lg hover:bg-gray-600 transition-colors text-lg"
+                className="w-full bg-gray-200 text-gray-800 font-bold py-3 px-4 rounded-lg hover:bg-gray-300 transition-colors text-lg"
               >
                 Book a Viewing
               </button>

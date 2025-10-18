@@ -35,24 +35,24 @@ export default function BookingModal({ property, agent, onClose }) {
 
   return (
     <div
-      className={`fixed inset-0 bg-black bg-opacity-70 flex items-center justify-center p-4 z-50 transition-opacity duration-300 ${
-        isClosing ? "opacity-0" : "opacity-100"
+      className={`fixed inset-0 bg-gray-600 bg-opacity-10 flex items-center justify-center p-4 z-50 transition-opacity duration-300 ${
+        isClosing ? "opacity-10" : "opacity-100"
       }`}
     >
       <div
-        className={`bg-gray-800 rounded-2xl shadow-2xl p-8 w-full max-w-md relative transform transition-all duration-300 ${
+        className={`bg-white text-gray-800 rounded-2xl shadow-2xl p-8 w-full max-w-md relative transform transition-all duration-300 ${
           isClosing ? "scale-95 opacity-0" : "scale-100 opacity-100"
         }`}
       >
         {isSubmitted ? (
           <div className="text-center">
-            <h2 className="text-2xl font-bold text-cyan-400 mb-2">
+            <h2 className="text-2xl font-bold text-green-600 mb-2">
               Thank You!
             </h2>
-            <p className="text-gray-300 mt-2">
+            <p className="text-gray-600 mt-2">
               Your viewing request has been sent to {agent.name}.
             </p>
-            <p className="text-gray-400 mt-1">
+            <p className="text-gray-500 mt-1">
               They will be in touch with you shortly.
             </p>
             <button
@@ -65,16 +65,16 @@ export default function BookingModal({ property, agent, onClose }) {
         ) : (
           <>
             <div className="flex justify-between items-center mb-4">
-              <h2 className="text-2xl font-bold text-white">Book a Viewing</h2>
+              <h2 className="text-2xl font-bold text-gray-900">Book a Viewing</h2>
               <button
                 onClick={handleClose}
-                className="text-gray-400 hover:text-white absolute top-4 right-4"
+                className="text-gray-400 hover:text-gray-700 absolute top-4 right-4"
               >
                 <XIcon />
               </button>
             </div>
-            <p className="text-gray-400 mb-1">Enquire about property:</p>
-            <p className="text-white font-semibold text-lg mb-6">
+            <p className="text-gray-500 mb-1">Enquire about property:</p>
+            <p className="text-gray-900 font-semibold text-lg mb-6">
               {property.address}
             </p>
             <form onSubmit={handleSubmit} className="space-y-4">
@@ -82,18 +82,18 @@ export default function BookingModal({ property, agent, onClose }) {
                 type="text"
                 placeholder="Full Name"
                 required
-                className="w-full bg-gray-700 text-white p-3 rounded-lg border border-gray-600 focus:ring-2 focus:ring-cyan-500 focus:border-cyan-500 outline-none transition"
+                className="w-full bg-gray-100 text-gray-900 p-3 rounded-lg border border-gray-600 focus:ring-2 focus:ring-cyan-500 focus:border-cyan-500 outline-none transition"
               />
               <input
                 type="email"
                 placeholder="Email Address"
                 required
-                className="w-full bg-gray-700 text-white p-3 rounded-lg border border-gray-600 focus:ring-2 focus:ring-cyan-500 focus:border-cyan-500 outline-none transition"
+                className="w-full bg-gray-100 text-gray-900 p-3 rounded-lg border border-gray-600 focus:ring-2 focus:ring-cyan-500 focus:border-cyan-500 outline-none transition"
               />
               <textarea
                 placeholder="Your message (optional)"
                 rows="3"
-                className="w-full bg-gray-700 text-white p-3 rounded-lg border border-gray-600 focus:ring-2 focus:ring-cyan-500 focus:border-cyan-500 outline-none transition"
+                className="w-full bg-gray-100 text-gray-900 p-3 rounded-lg border border-gray-600 focus:ring-2 focus:ring-cyan-500 focus:border-cyan-500 outline-none transition"
               ></textarea>
               <button
                 type="submit"

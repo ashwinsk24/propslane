@@ -2,7 +2,7 @@ export default function Header({ agent }) {
   if (!agent) return null;
 
   return (
-    <header className="bg-gray-800/50 backdrop-blur-lg border-b border-gray-700/50 p-4 sticky top-0 z-20">
+    <header className="bg-white/80 backdrop-blur-lg border-b border-gray-200 p-4 sticky top-0 z-20">
       <div className="container mx-auto flex justify-between items-center">
         <div className="flex items-center space-x-4">
           <img
@@ -10,7 +10,7 @@ export default function Header({ agent }) {
             alt={`${agent.name} Logo`}
             className="h-10 object-contain"
           />
-          <span className="text-xl font-bold text-white tracking-wider">
+          <span className="text-xl font-bold text-gray-900 tracking-wider">
             {agent.name}
           </span>
         </div>

@@ -5,6 +5,7 @@ import Header from "./Header";
 import PropertyCard from "./PropertyCard";
 import PropertyDetailView from "./PropertyDetailView";
 import BookingModal from "./BookingModal";
+import LoadSpinner from "./LoadSpinner";
 import Footer from "./Footer";
 
 // This component now acts as the main container for the interactive part of the app.
@@ -44,20 +45,20 @@ export default function ClientApp({ data }) {
 
   if (isLoading) {
     return (
-      <div className="flex justify-center items-center h-screen bg-gray-900">
-        <div className="animate-spin rounded-full h-16 w-16 border-t-2 border-b-2 border-blue-500"></div>
+      <div>
+        <LoadSpinner />;
       </div>
     );
   }
 
   return (
-    <div className="bg-gray-900 text-white min-h-screen">
+    <div className="bg-gray-50 text-gray-800 min-h-screen">
       <Header agent={agent} />
       <main className="flex-grow">
         {view === "list" && (
           // This container centers the content and adds padding.
           <div className="container mx-auto p-4 sm:p-8">
-            <h2 className="text-3xl font-bold text-white mb-6">
+            <h2 className="text-3xl font-bold text-gray-800 mb-6">
               Available Properties
             </h2>
             {properties.length > 0 ? (
