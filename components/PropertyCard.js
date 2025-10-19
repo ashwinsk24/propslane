@@ -1,61 +1,51 @@
-import { BedIcon, BathIcon, MaximizeIcon } from "./Icons";
+import { BedIcon, BathIcon, SizeIcon } from "./Icons";
+import { formatCurrency } from "../utils/formatters";
 
-export default function PropertyCard({ property, onSelect, onBook }) {
-  const formatCurrency = (price) => {
-    if (!price) return "Price upon request";
-    return new Intl.NumberFormat("en-UK", {
-      style: "currency",
-      currency: "GBP",
-      maximumFractionDigits: 0,
-    }).format(price);
-  };
-
+export default function PropertyCard({ property, onSelect }) {
   return (
-    <div className="bg-white rounded-2xl shadow-md overflow-hidden flex flex-col group transition-all duration-300 hover:shadow-cyan-500/20 hover:ring-2 hover:ring-blue-500">
-      <div
-        className="relative overflow-hidden cursor-pointer"
-        onClick={() => onSelect(property)}
-      >
+    <div
+      className="bg-white rounded-lg shadow-md overflow-hidden group cursor-pointer transition-all duration-300 hover:shadow-xl hover:-translate-y-1"
+      onClick={() => onSelect(property)}
+    >
+      <div className="relative">
         <img
           src={property.imageUrl}
-          alt={`View of ${property.address}`}
-          className="w-full h-48 object-cover group-hover:scale-110 transition-transform duration-300"
+          alt={`View of ${property.title}`}
+          className="w-full h-48 object-cover group-hover:scale-105 transition-transform duration-300"
         />
-        <div className="absolute top-2 left-2 bg-black/50 text-white text-lg font-bold p-2 rounded-lg">
-          {formatCurrency(property.price)}
+        <div className="absolute top-3 left-3 bg-black/50 text-white text-sm font-bold py-1 px-3 rounded-full backdrop-blur-sm">
+          {formatCurrency(property.price)} pcm
         </div>
       </div>
-      <div className="p-4 flex-grow flex flex-col">
-        <h3 className="text-lg font-bold text-gray-900 mb-1 truncate">
-          {property.address}
+      <div className="p-4">
+        <h3 className="text-lg font-bold text-slate-800 truncate">
+          {property.title}
         </h3>
-        <div className="text-sm text-gray-500 mb-4 flex-wrap flex gap-x-4 gap-y-1">
-          <span>
+        <p className="text-sm text-slate-500 mt-1 truncate">
+          {property.address}
+        </p>
+        <div className="mt-4 flex items-center space-x-4 text-sm text-slate-500 border-t pt-3">
+          <span className="flex items-center gap-2">
             <BedIcon /> {property.bedrooms} beds
           </span>
-          <span>
+          <span className="flex items-center gap-2">
             <BathIcon /> {property.bathrooms} baths
           </span>
-          <span>
-            <MaximizeIcon /> {property.sqft} sq.ft.
+          <span className="flex items-center gap-2">
+            <SizeIcon /> {property.sqft} sq.ft.
           </span>
         </div>
-        <div className="mt-auto space-y-2">
-          <a
-            href={property.matterportUrl || "#"}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="block w-full text-center bg-blue-600 text-white font-bold py-2 px-4 rounded-lg hover:bg-blue-700 transition-colors"
-          >
-            View 3D Tour
-          </a>
+        {/* <div className="mt-4">
           <button
-            onClick={() => onBook(property)}
-            className="w-full bg-gray-200 text-gray-800 font-bold py-2 px-4 rounded-lg hover:bg-gray-300 transition-colors"
+            onClick={(e) => {
+              e.stopPropagation(); // Prevents the onSelect of the card from firing
+              onBook(property);
+            }}
+            className="w-full text-center bg-white border-2 border-indigo-600 text-indigo-600 font-bold py-2 px-4 rounded-lg hover:bg-indigo-50 transition-all text-sm"
           >
             Book a Viewing
           </button>
-        </div>
+        </div> */}
       </div>
     </div>
   );

@@ -1,35 +1,86 @@
-"use client"; // This directive is ESSENTIAL. It marks this as a Client Component.
+"use client";
 
-import { Fragment, useState, useEffect } from "react";
+import { useState, useMemo } from "react";
 import Header from "./Header";
 import PropertyCard from "./PropertyCard";
 import PropertyDetailView from "./PropertyDetailView";
 import BookingModal from "./BookingModal";
-import LoadSpinner from "./LoadSpinner";
+import SkeletonCard from "./SkeletonCard";
 import Footer from "./Footer";
 
 // This component now acts as the main container for the interactive part of the app.
 export default function ClientApp({ data }) {
   const [view, setView] = useState("list"); // 'list' or 'detail'
+  const [isExiting, setIsExiting] = useState(false); // For view transitions
   const [selectedProperty, setSelectedProperty] = useState(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [isLoading, setIsLoading] = useState(true); // Add loading state
+  // const [properties, setProperties] = useState([]);
+  // const [isLoading, setIsLoading] = useState(true);
 
-  // Simulate loading on initial mount
-  useEffect(() => {
-    const timer = setTimeout(() => setIsLoading(false), 500); // Simulate initial load
-    return () => clearTimeout(timer);
-  }, []);
+  // --- NEW: State to manage all filter values ---
+  const [filters, setFilters] = useState({
+    price: "all",
+    beds: "all",
+    // These are placeholders for future use, not tied to data yet
+    status: "all",
+    type: "all",
+  });
+
+  // This function updates the filter state when a dropdown changes
+  const handleFilterChange = (e) => {
+    const { name, value } = e.target;
+    setFilters((prevFilters) => ({
+      ...prevFilters,
+      [name]: value,
+    }));
+  };
+
+  // --- NEW: Filtering Logic ---
+  // useMemo will re-calculate the filtered list only when the original data or the filters change.
+  const filteredProperties = useMemo(() => {
+    // Start with the full list of properties from the server.
+    // The '|| []' prevents errors if data.properties is not available.
+    let propertiesToFilter = data.properties || [];
+
+    // 1. Filter by Price
+    if (filters.price !== "all") {
+      const [min, max] = filters.price.split("-").map(Number);
+      propertiesToFilter = propertiesToFilter.filter(
+        (p) => p.price >= min && p.price <= (max || Infinity)
+      );
+    }
+
+    // 2. Filter by Bedrooms
+    if (filters.beds !== "all") {
+      const minBeds = parseInt(filters.beds, 10);
+      propertiesToFilter = propertiesToFilter.filter(
+        (p) => p.bedrooms >= minBeds
+      );
+    }
+
+    return propertiesToFilter;
+  }, [data.properties, filters]); // Dependencies for useMemo
+
+  // NOTE: The original `isLoading` and `properties` states are removed
+  // because we now derive the list directly from the `data` prop.
+  // This is a more robust approach.
+
+  const changeView = (newView, property = null) => {
+    setIsExiting(true); // Start exit animation
+    setTimeout(() => {
+      setView(newView);
+      setSelectedProperty(property);
+      setIsExiting(false); // End exit animation, new view will animate in
+      window.scrollTo(0, 0);
+    }, 300); // Duration should match the fadeOut animation
+  };
 
   const handleSelectProperty = (property) => {
-    setSelectedProperty(property);
-    setView("detail");
-    window.scrollTo(0, 0);
+    changeView("detail", property);
   };
 
   const handleBackToList = () => {
-    setView("list");
-    setSelectedProperty(null);
+    changeView("list");
   };
 
   const handleOpenModal = (property) => {
@@ -37,52 +88,163 @@ export default function ClientApp({ data }) {
     setIsModalOpen(true);
   };
 
-  const handleCloseModal = () => {
-    setIsModalOpen(false);
-  };
-
-  const { agent, properties } = data;
-
-  if (isLoading) {
-    return (
-      <div>
-        <LoadSpinner />;
-      </div>
-    );
-  }
+  const { agent } = data;
 
   return (
-    <div className="bg-gray-50 text-gray-800 min-h-screen">
+    <div className="bg-slate-100 min-h-screen">
       <Header agent={agent} />
-      <main className="flex-grow">
+      <main className={isExiting ? "animate-fade-out" : "animate-fade-in"}>
         {view === "list" && (
-          // This container centers the content and adds padding.
-          <div className="container mx-auto p-4 sm:p-8">
-            <h2 className="text-3xl font-bold text-gray-800 mb-6">
-              Available Properties
-            </h2>
-            {properties.length > 0 ? (
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-                {properties.map((prop, index) => (
+          <div>
+            {/* --- CHANGE: Filter dropdowns are now connected to state --- */}
+            <div className="p-4 sm:p-6 bg-white border-b border-slate-200">
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                {/* --- Status Dropdown --- */}
+                <div className="relative">
+                  <select
+                    name="status"
+                    value={filters.status}
+                    onChange={handleFilterChange}
+                    className="w-full p-2.5 pr-8 text-gray-500 bg-white border rounded-md shadow-sm outline-none appearance-none focus:border-indigo-600"
+                  >
+                    <option value="all">Any Status</option>
+                    <option value="tolet">To Let</option>
+                  </select>
+                  {/* Custom Arrow */}
+                  <div className="absolute inset-y-0 right-0 flex items-center px-2 pointer-events-none">
+                    <svg
+                      className="w-4 h-4 text-gray-400"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth="2"
+                        d="M19 9l-7 7-7-7"
+                      ></path>
+                    </svg>
+                  </div>
+                </div>
+
+                {/* --- Type Dropdown --- */}
+                <div className="relative">
+                  <select
+                    name="type"
+                    value={filters.type}
+                    onChange={handleFilterChange}
+                    className="w-full p-2.5 pr-8 text-gray-500 bg-white border rounded-md shadow-sm outline-none appearance-none focus:border-indigo-600"
+                  >
+                    <option value="all">Any Type</option>
+                    <option value="house">House</option>
+                    <option value="flat">Flat</option>
+                  </select>
+                  {/* Custom Arrow */}
+                  <div className="absolute inset-y-0 right-0 flex items-center px-2 pointer-events-none">
+                    <svg
+                      className="w-4 h-4 text-gray-400"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth="2"
+                        d="M19 9l-7 7-7-7"
+                      ></path>
+                    </svg>
+                  </div>
+                </div>
+
+                {/* --- Price Dropdown --- */}
+                <div className="relative">
+                  <select
+                    name="price"
+                    value={filters.price}
+                    onChange={handleFilterChange}
+                    className="w-full p-2.5 pr-8 text-gray-500 bg-white border rounded-md shadow-sm outline-none appearance-none focus:border-indigo-600"
+                  >
+                    <option value="all">Any Price</option>
+                    <option value="0-3000">£0 - £3,000</option>
+                    <option value="3000-5000">£3,000 - £5,000</option>
+                    <option value="5000-Infinity">£5,000+</option>
+                  </select>
+                  {/* Custom Arrow */}
+                  <div className="absolute inset-y-0 right-0 flex items-center px-2 pointer-events-none">
+                    <svg
+                      className="w-4 h-4 text-gray-400"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth="2"
+                        d="M19 9l-7 7-7-7"
+                      ></path>
+                    </svg>
+                  </div>
+                </div>
+
+                {/* --- Beds Dropdown --- */}
+                <div className="relative">
+                  <select
+                    name="beds"
+                    value={filters.beds}
+                    onChange={handleFilterChange}
+                    className="w-full p-2.5 pr-8 text-gray-500 bg-white border rounded-md shadow-sm outline-none appearance-none focus:border-indigo-600"
+                  >
+                    <option value="all">Any Beds</option>
+                    <option value="1">1+</option>
+                    <option value="2">2+</option>
+                    <option value="3">3+</option>
+                    <option value="4">4+</option>
+                  </select>
+                  {/* Custom Arrow */}
+                  <div className="absolute inset-y-0 right-0 flex items-center px-2 pointer-events-none">
+                    <svg
+                      className="w-4 h-4 text-gray-400"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth="2"
+                        d="M19 9l-7 7-7-7"
+                      ></path>
+                    </svg>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Property Grid */}
+            {/* --- CHANGE: Now we map over the `filteredProperties` array --- */}
+            <div className="p-4 sm:p-6 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+              {filteredProperties.length > 0 ? (
+                filteredProperties.map((prop) => (
                   <PropertyCard
-                    key={index}
+                    key={prop.id}
                     property={prop}
                     onSelect={handleSelectProperty}
                     onBook={() => handleOpenModal(prop)}
                   />
-                ))}
-              </div>
-            ) : (
-              <div className="text-center py-20 bg-gray-800 rounded-2xl">
-                <h2 className="text-2xl font-semibold text-white">
-                  No Properties Found
-                </h2>
-                <p className="text-gray-400 mt-2">
-                  This agent currently has no active listings. Please check back
-                  later.
-                </p>
-              </div>
-            )}
+                ))
+              ) : (
+                // --- NEW: A helpful message when no properties match the filters ---
+                <div className="col-span-full text-center py-12 text-slate-500">
+                  <h3 className="text-xl font-semibold">No Properties Found</h3>
+                  <p className="mt-2">
+                    Try adjusting your filters to find what you're looking for.
+                  </p>
+                </div>
+              )}
+            </div>
           </div>
         )}
         {view === "detail" && selectedProperty && (
@@ -93,14 +255,15 @@ export default function ClientApp({ data }) {
           />
         )}
       </main>
+
       {isModalOpen && selectedProperty && (
         <BookingModal
           property={selectedProperty}
           agent={agent}
-          onClose={handleCloseModal}
+          onClose={() => setIsModalOpen(false)}
         />
       )}
-      <Footer />
+      <Footer agent={agent} />
     </div>
   );
 }

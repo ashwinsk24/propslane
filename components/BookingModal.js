@@ -28,14 +28,14 @@ export default function BookingModal({ property, agent, onClose }) {
     e.preventDefault();
     // In a real application, you would send this form data to an API endpoint
     console.log(
-      `Form submitted for ${property.address} to ${agent.contactEmail}`
+      `Form submitted for ${property.title} to ${agent.contactEmail}`
     );
     setIsSubmitted(true);
   };
 
   return (
     <div
-      className={`fixed inset-0 bg-gray-600 bg-opacity-10 flex items-center justify-center p-4 z-50 transition-opacity duration-300 ${
+      className={`fixed inset-0 bg-slate-900/60 bg-opacity-10 flex items-center justify-center p-4 z-50 transition-opacity duration-300 ${
         isClosing ? "opacity-10" : "opacity-100"
       }`}
     >
@@ -75,7 +75,7 @@ export default function BookingModal({ property, agent, onClose }) {
             </div>
             <p className="text-gray-500 mb-1">Enquire about property:</p>
             <p className="text-gray-900 font-semibold text-lg mb-6">
-              {property.address}
+              {property.title}
             </p>
             <form onSubmit={handleSubmit} className="space-y-4">
               <input
