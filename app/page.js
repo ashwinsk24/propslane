@@ -1,6 +1,8 @@
 // This is your new root page, which handles "/"
 // It is separate from the dynamic agent pages.
 
+import Link from "next/link";
+
 export default function RootHomePage() {
   return (
     <div className="bg-slate-100 min-h-screen flex items-center justify-center">
@@ -13,12 +15,12 @@ export default function RootHomePage() {
         </p>
         <p className="text-slate-500 mt-10">
           Agent sites are now available at their own paths. For example:
-          <a
+          <Link
             href="/propslane" // Example link to an agent page
             className="block mt-2 text-lg font-semibold text-blue-600 hover:underline"
           >
             propslane.com/propslane
-          </a>
+          </Link>
         </p>
       </div>
     </div>
