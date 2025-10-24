@@ -240,7 +240,7 @@ export default function ClientApp({ data }) {
                 <div className="col-span-full text-center py-12 text-slate-500">
                   <h3 className="text-xl font-semibold">No Properties Found</h3>
                   <p className="mt-2">
-                    Try adjusting your filters to find what you're looking for.
+                    Try adjusting your filters to find your requirements.
                   </p>
                 </div>
               )}
